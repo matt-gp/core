@@ -11,12 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
-	"go.opentelemetry.io/otel/log"
+	"go.opentelemetry.io/otel/log/global"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
-// createTestLogger creates a logger that outputs to a buffer for testing
-func createTestLogger() (log.Logger, *bytes.Buffer, error) {
+// setupTestLogger wires a buffer-backed logger provider into the OTEL global and
+// calls Init so the package-level logger is ready for the test.
+func setupTestLogger(t *testing.T) *bytes.Buffer {
+	t.Helper()
 	var buf bytes.Buffer
 
 	exporter, err := stdoutlog.New(
@@ -24,22 +26,22 @@ func createTestLogger() (log.Logger, *bytes.Buffer, error) {
 		stdoutlog.WithPrettyPrint(),
 	)
 	if err != nil {
-		return nil, nil, err
+		t.Fatalf("failed to create log exporter: %v", err)
 	}
 
-	processor := sdklog.NewBatchProcessor(exporter)
-	loggerProvider := sdklog.NewLoggerProvider(
-		sdklog.WithProcessor(processor),
+	provider := sdklog.NewLoggerProvider(
+		sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)),
 	)
+	global.SetLoggerProvider(provider)
+	Init("test-logger")
 
-	logger := loggerProvider.Logger("test-logger")
-	return logger, &buf, nil
+	return &buf
 }
 
 func TestLogLevels(t *testing.T) {
 	tests := []struct {
 		name     string
-		logFunc  func(context.Context, log.Logger, string, ...attribute.KeyValue)
+		logFunc  func(context.Context, string, ...attribute.KeyValue)
 		message  string
 		setLevel string
 	}{
@@ -53,36 +55,30 @@ func TestLogLevels(t *testing.T) {
 			name:     "trace level",
 			logFunc:  Trace,
 			message:  "trace message",
-			setLevel: "DEBUG", // Trace requires DEBUG level
+			setLevel: "DEBUG",
 		},
 		{
-			name:     "info level",
-			logFunc:  Info,
-			message:  "info message",
-			setLevel: "", // Default level
+			name:    "info level",
+			logFunc: Info,
+			message: "info message",
 		},
 		{
-			name:     "warn level",
-			logFunc:  Warn,
-			message:  "warning message",
-			setLevel: "", // Default level
+			name:    "warn level",
+			logFunc: Warn,
+			message: "warning message",
 		},
 		{
-			name:     "error level",
-			logFunc:  Error,
-			message:  "error message",
-			setLevel: "", // Default level
+			name:    "error level",
+			logFunc: Error,
+			message: "error message",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger, buf, err := createTestLogger()
-			assert.NoError(t, err)
-
+			buf := setupTestLogger(t)
 			ctx := context.Background()
 
-			// Set log level if specified
 			if tt.setLevel != "" {
 				if err := os.Setenv("LOG_LEVEL", tt.setLevel); err != nil {
 					t.Fatalf("Failed to set env var LOG_LEVEL: %v", err)
@@ -94,9 +90,8 @@ func TestLogLevels(t *testing.T) {
 				}()
 			}
 
-			tt.logFunc(ctx, logger, tt.message)
+			tt.logFunc(ctx, tt.message)
 
-			// Just verify no error occurred and buffer exists
 			assert.NotNil(t, buf)
 		})
 	}
@@ -105,7 +100,7 @@ func TestLogLevels(t *testing.T) {
 func TestLogWithAttributes(t *testing.T) {
 	tests := []struct {
 		name       string
-		logFunc    func(context.Context, log.Logger, string, ...attribute.KeyValue)
+		logFunc    func(context.Context, string, ...attribute.KeyValue)
 		message    string
 		attributes []attribute.KeyValue
 	}{
@@ -141,12 +136,10 @@ func TestLogWithAttributes(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			logger, buf, err := createTestLogger()
-			assert.NoError(t, err)
-
+			buf := setupTestLogger(t)
 			ctx := context.Background()
 
-			tt.logFunc(ctx, logger, tt.message, tt.attributes...)
+			tt.logFunc(ctx, tt.message, tt.attributes...)
 
 			assert.NotNil(t, buf)
 		})
@@ -154,12 +147,9 @@ func TestLogWithAttributes(t *testing.T) {
 }
 
 func TestLogOutput(t *testing.T) {
-	logger, buf, err := createTestLogger()
-	assert.NoError(t, err)
-
+	buf := setupTestLogger(t)
 	ctx := context.Background()
 
-	// Set log level to INFO
 	if err := os.Setenv("LOG_LEVEL", "INFO"); err != nil {
 		t.Fatalf("Failed to set env var LOG_LEVEL: %v", err)
 	}
@@ -169,10 +159,7 @@ func TestLogOutput(t *testing.T) {
 		}
 	}()
 
-	Info(ctx, logger, "test message", attribute.String("key", "value"))
+	Info(ctx, "test message", attribute.String("key", "value"))
 
-	// For integration testing, you could check the buffer content
-	// but since we're dealing with OpenTelemetry's async processing,
-	// it's safer to just verify the function doesn't panic
 	assert.NotNil(t, buf)
 }
