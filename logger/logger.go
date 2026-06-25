@@ -6,9 +6,16 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
+	"go.opentelemetry.io/otel/log/global"
 )
 
 var loggerProvider log.Logger
+
+func init() {
+	// Initialize with a default logger from the global provider
+	// This will be a no-op logger unless a global provider has been set
+	loggerProvider = global.GetLoggerProvider().Logger("default")
+}
 
 // SetProvider configures the OTEL logger provider.
 // Call this once after otel.NewProvider, passing the instrumentation scope name for your service.
