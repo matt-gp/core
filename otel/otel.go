@@ -29,38 +29,6 @@ import (
 )
 
 const (
-	// SignalTypeAttrKey is the attribute key for the type of OTLP signal (logs, metrics, traces).
-	SignalTypeAttrKey = "signal.type"
-
-	// SignalTenantAttrKey is the attribute key for the tenant associated with the OTLP signal.
-	SignalTenantAttrKey = "signal.tenant"
-
-	// SignalTenantRecordsAttrKey is the attribute key for the number of records associated with the tenant.
-	SignalTenantRecordsAttrKey = "signal.tenant.records"
-
-	// SignalResponseStatusCodeAttrKey is the attribute key for the HTTP response status code of the OTLP signal.
-	SignalResponseStatusCodeAttrKey = "signal.response.status.code"
-
-	// HTTPAddressAttrKey is the attribute key for the HTTP server address.
-	HTTPAddressAttrKey = "http.address"
-
-	// HTTPTLSEnabledAttrKey is the attribute key for whether TLS is enabled on the HTTP server.
-	HTTPTLSEnabledAttrKey = "http.tls.enabled"
-
-	// HTTPClientURLAttrKey is the attribute key for the HTTP client URL.
-	HTTPClientURLAttrKey = "http.client.url"
-
-	// HTTPClientTimeoutAttrKey is the attribute key for the HTTP client timeout.
-	HTTPClientTimeoutAttrKey = "http.client.timeout"
-
-	// HTTPClientTLSEnabledAttrKey is the attribute key for whether TLS is enabled on the HTTP client.
-	HTTPClientTLSEnabledAttrKey = "http.client.tls.enabled"
-
-	// ErrorAttrKey is the attribute key for errors.
-	ErrorAttrKey = "error"
-)
-
-const (
 	exporterConsole = "console"
 	exporterNone    = "none"
 	exporterOTLP    = "otlp"
