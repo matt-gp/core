@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
-	"go.opentelemetry.io/otel/log/global"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
@@ -32,8 +31,7 @@ func setupTestLogger(t *testing.T) *bytes.Buffer {
 	provider := sdklog.NewLoggerProvider(
 		sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)),
 	)
-	global.SetLoggerProvider(provider)
-	Init("test-logger")
+	SetLogger(provider.Logger("test-logger"))
 
 	return &buf
 }

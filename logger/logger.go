@@ -6,15 +6,14 @@ import (
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/log"
-	"go.opentelemetry.io/otel/log/global"
 )
 
 var pkgLogger log.Logger
 
-// Init configures the package-level logger from the global OTEL logger provider.
+// SetLogger configures the package-level logger from the global OTEL logger provider.
 // Call this once after otel.NewProvider, passing the instrumentation scope name for your service.
-func Init(name string) {
-	pkgLogger = global.GetLoggerProvider().Logger(name)
+func SetLogger(logger log.Logger) {
+	pkgLogger = logger
 }
 
 // Debug emits a debug log using OpenTelemetry logging.
