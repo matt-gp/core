@@ -8,12 +8,12 @@ import (
 	"go.opentelemetry.io/otel/log"
 )
 
-var pkgLogger log.Logger
+var loggerProvider log.Logger
 
-// SetLogger configures the package-level logger from the global OTEL logger provider.
+// SetProvider configures the OTEL logger provider.
 // Call this once after otel.NewProvider, passing the instrumentation scope name for your service.
-func SetLogger(logger log.Logger) {
-	pkgLogger = logger
+func SetProvider(provider log.Logger) {
+	loggerProvider = provider
 }
 
 // Debug emits a debug log using OpenTelemetry logging.
@@ -24,7 +24,7 @@ func Debug(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	for _, attr := range attrs {
 		record.AddAttributes(log.KeyValueFromAttribute(attr))
 	}
-	pkgLogger.Emit(ctx, record)
+	loggerProvider.Emit(ctx, record)
 }
 
 // Trace emits a trace log using OpenTelemetry logging.
@@ -35,7 +35,7 @@ func Trace(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	for _, attr := range attrs {
 		record.AddAttributes(log.KeyValueFromAttribute(attr))
 	}
-	pkgLogger.Emit(ctx, record)
+	loggerProvider.Emit(ctx, record)
 }
 
 // Info emits an info log using OpenTelemetry logging.
@@ -46,7 +46,7 @@ func Info(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	for _, attr := range attrs {
 		record.AddAttributes(log.KeyValueFromAttribute(attr))
 	}
-	pkgLogger.Emit(ctx, record)
+	loggerProvider.Emit(ctx, record)
 }
 
 // Warn emits a warning log using OpenTelemetry logging.
@@ -57,7 +57,7 @@ func Warn(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	for _, attr := range attrs {
 		record.AddAttributes(log.KeyValueFromAttribute(attr))
 	}
-	pkgLogger.Emit(ctx, record)
+	loggerProvider.Emit(ctx, record)
 }
 
 // Error emits an error log using OpenTelemetry logging.
@@ -68,5 +68,5 @@ func Error(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	for _, attr := range attrs {
 		record.AddAttributes(log.KeyValueFromAttribute(attr))
 	}
-	pkgLogger.Emit(ctx, record)
+	loggerProvider.Emit(ctx, record)
 }

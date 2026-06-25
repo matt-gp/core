@@ -28,10 +28,9 @@ func setupTestLogger(t *testing.T) *bytes.Buffer {
 		t.Fatalf("failed to create log exporter: %v", err)
 	}
 
-	provider := sdklog.NewLoggerProvider(
+	SetProvider(sdklog.NewLoggerProvider(
 		sdklog.WithProcessor(sdklog.NewBatchProcessor(exporter)),
-	)
-	SetLogger(provider.Logger("test-logger"))
+	).Logger("test-logger"))
 
 	return &buf
 }
