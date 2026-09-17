@@ -27,10 +27,8 @@ func SetProvider(provider log.Logger) {
 func Debug(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	record := log.Record{}
 	record.SetSeverity(log.SeverityDebug)
-	record.SetBody(log.StringValue(msg))
-	for _, attr := range attrs {
-		record.AddAttributes(log.KeyValueFromAttribute(attr))
-	}
+	record.SetBody(attribute.StringValue(msg))
+	record.AddAttributes(attrs...)
 	loggerProvider.Emit(ctx, record)
 }
 
@@ -38,10 +36,8 @@ func Debug(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 func Trace(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	record := log.Record{}
 	record.SetSeverity(log.SeverityTrace)
-	record.SetBody(log.StringValue(msg))
-	for _, attr := range attrs {
-		record.AddAttributes(log.KeyValueFromAttribute(attr))
-	}
+	record.SetBody(attribute.StringValue(msg))
+	record.AddAttributes(attrs...)
 	loggerProvider.Emit(ctx, record)
 }
 
@@ -49,10 +45,8 @@ func Trace(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 func Info(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	record := log.Record{}
 	record.SetSeverity(log.SeverityInfo)
-	record.SetBody(log.StringValue(msg))
-	for _, attr := range attrs {
-		record.AddAttributes(log.KeyValueFromAttribute(attr))
-	}
+	record.SetBody(attribute.StringValue(msg))
+	record.AddAttributes(attrs...)
 	loggerProvider.Emit(ctx, record)
 }
 
@@ -60,10 +54,8 @@ func Info(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 func Warn(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	record := log.Record{}
 	record.SetSeverity(log.SeverityWarn)
-	record.SetBody(log.StringValue(msg))
-	for _, attr := range attrs {
-		record.AddAttributes(log.KeyValueFromAttribute(attr))
-	}
+	record.SetBody(attribute.StringValue(msg))
+	record.AddAttributes(attrs...)
 	loggerProvider.Emit(ctx, record)
 }
 
@@ -71,9 +63,7 @@ func Warn(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 func Error(ctx context.Context, msg string, attrs ...attribute.KeyValue) {
 	record := log.Record{}
 	record.SetSeverity(log.SeverityError)
-	record.SetBody(log.StringValue(msg))
-	for _, attr := range attrs {
-		record.AddAttributes(log.KeyValueFromAttribute(attr))
-	}
+	record.SetBody(attribute.StringValue(msg))
+	record.AddAttributes(attrs...)
 	loggerProvider.Emit(ctx, record)
 }
